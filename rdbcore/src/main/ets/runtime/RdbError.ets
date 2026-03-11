@@ -1,0 +1,1 @@
+export { RdbError, toRdbError, createNotImplementedError } from '../metadata/RdbError'

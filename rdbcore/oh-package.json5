@@ -1,0 +1,17 @@
+{
+  "name": "rdbcore",
+  "version": "1.0.0",
+  "description": "Metadata-driven RDB library for HarmonyOS / ArkTS.",
+  "main": "Index.ets",
+  "author": "guzi",
+  "license": "MIT",
+  "dependencies": {},
+  "keywords": [
+    "数据库",
+    "orm",
+    "dsl",
+    "metadata",
+    "rdb",
+    "sqlite"
+  ]
+}
