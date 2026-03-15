@@ -1,5 +1,5 @@
 import { NormalizedEntityMeta, RdbScalarValue, requireDeclaredField } from '../metadata'
-import { RdbError } from '../metadata/RdbError'
+import { RdbError } from '../runtime'
 
 export const enum RdbQueryOperator {
   EQ = 'EQ',

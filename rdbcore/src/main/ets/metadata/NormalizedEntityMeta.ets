@@ -6,7 +6,7 @@ import {
   RdbLogicDeleteMeta,
   RdbPageMeta
 } from './EntityMeta'
-import { RdbError } from './RdbError'
+import { RdbError } from '../runtime'
 
 export interface NormalizedEntityMeta {
   entityName: string

@@ -9,7 +9,7 @@ import {
   RdbScalarValue
 } from './EntityMeta'
 import { DefineEntityMetaOptions, RdbFieldOptions, auditFields, defineEntityMeta, field, idField, logicDeleteField, pageConfig } from './EntityMetaDsl'
-import { RdbError } from './RdbError'
+import { RdbError } from '../runtime'
 import { ClassConstructor } from './ClassConstructor'
 
 interface RdbDecoratedFieldTarget {

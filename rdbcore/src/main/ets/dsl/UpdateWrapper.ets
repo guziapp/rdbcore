@@ -1,6 +1,6 @@
 import { RdbScalarValue } from '../metadata/EntityMeta'
 import { NormalizedEntityMeta, requireDeclaredField } from '../metadata'
-import { RdbError } from '../metadata/RdbError'
+import { RdbError } from '../runtime'
 
 export const enum RdbPatchMode {
   SET = 'SET',
