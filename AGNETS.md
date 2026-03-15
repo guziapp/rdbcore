@@ -142,12 +142,12 @@ Agent 修改代码时，必须遵守以下约束：
 
 ## 10. 当前阶段下的工作优先级
 
-当前仓库仍处于“主链收口 + 发布前治理”阶段，优先级如下：
+当前仓库处于"主链已验证 + 发布前治理"阶段，优先级如下：
 
-1. `rdbcore` 默认交付链可验证
-2. schema version / migration contract
-3. `.ts` / `src/test` / `src/ohosTest` 持续纳入质量门禁
-4. `entry` 收敛为最小 demo
+1. ~~`rdbcore` 默认交付链可验证~~ ✅ 已完成（场景测试全部通过）
+2. ~~`entry` 收敛为最小 demo~~ ✅ 已完成（92 个测试用例全部通过）
+3. schema version / migration contract（待完善）
+4. `.ts` / `src/test` / `src/ohosTest` 持续纳入质量门禁
 5. 文档、示例、公开 API 口径一致
 
 如果任务与上述优先级冲突，优先保护主线，不要为了局部业务需求破坏整体治理方向。
