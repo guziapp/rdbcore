@@ -1,0 +1,22 @@
+{
+  "routerMap": [
+    {
+      "name": "OrderPage",
+      "pageSourceFile": "src/main/ets/demo/pages/OrderPage.ets",
+      "buildFunction": "OrderPageBuilder",
+      "data": {
+        "title": "OrderPage",
+        "description": ""
+      }
+    },
+    {
+      "name": "UserListPage",
+      "pageSourceFile": "src/main/ets/demo/pages/UserListPage.ets",
+      "buildFunction": "UserListPageBuilder",
+      "data": {
+        "title": "UserListPage",
+        "description": ""
+      }
+    }
+  ]
+}

@@ -11,6 +11,66 @@
     {
       "name": "EntryAbility_label",
       "value": "label"
+    },
+    {
+      "name": "entry_demo_title",
+      "value": "rdbcore 最小 CRUD Demo"
+    },
+    {
+      "name": "entry_demo_desc",
+      "value": "通过 entry 真实消费 rdbcore，演示初始化、插入、分页刷新、更新与软删除。"
+    },
+    {
+      "name": "entry_demo_action_init",
+      "value": "初始化"
+    },
+    {
+      "name": "entry_demo_action_insert",
+      "value": "插入样例"
+    },
+    {
+      "name": "entry_demo_action_refresh",
+      "value": "刷新分页"
+    },
+    {
+      "name": "entry_demo_action_patch",
+      "value": "更新最新"
+    },
+    {
+      "name": "entry_demo_action_delete",
+      "value": "删除最新"
+    },
+    {
+      "name": "entry_demo_label_status",
+      "value": "状态"
+    },
+    {
+      "name": "entry_demo_label_latest_id",
+      "value": "最新记录 ID"
+    },
+    {
+      "name": "entry_demo_label_latest_name",
+      "value": "最新记录名称"
+    },
+    {
+      "name": "entry_demo_label_total",
+      "value": "当前总数"
+    },
+    {
+      "name": "entry_demo_label_page",
+      "value": "分页信息"
+    },
+    {
+      "name": "entry_demo_label_records",
+      "value": "当前页记录"
+    },
+    {
+      "name": "demo_user_list_title",
+      "value": "用户管理"
+    },
+    {
+      "name": "demo_order_title",
+      "value": "订单管理"
     }
   ]
 }
