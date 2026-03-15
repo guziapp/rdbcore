@@ -4,20 +4,7 @@
  * 统一管理数据库初始化、实体入口和事务
  */
 import { common } from '@kit.AbilityKit'
-import {
-  RdbDatabase,
-  RdbDatabaseOptions
-} from 'rdbcore'
-import {
-  User,
-  Product,
-  Order,
-  OrderItem,
-  USER_ENTITY_NAME,
-  PRODUCT_ENTITY_NAME,
-  ORDER_ENTITY_NAME,
-  ORDER_ITEM_ENTITY_NAME
-} from '../entity'
+import { EntityEntry, RdbDatabase,  RdbDatabaseOptions } from 'rdbcore'
 
 // 导入实体类以触发装饰器注册
 // 注意: 装饰器需要在类被导入时执行,才能注册实体元数据
@@ -34,14 +21,22 @@ export const DEMO_DB_VERSION: number = 1
  * 数据库管理器
  * 
  * 单例模式，管理数据库生命周期
+ * 支持自动等待初始化完成
  */
 export class DatabaseManager {
   private static instance: DatabaseManager | null = null
   private database: RdbDatabase | null = null
   private context: common.Context | null = null
   private initialized: boolean = false
+  private initPromise: Promise<void> | null = null
+  private initResolve: (() => void) | null = null
 
-  private constructor() {}
+  private constructor() {
+    // 创建初始化 Promise，用于等待初始化完成
+    this.initPromise = new Promise<void>((resolve: () => void): void => {
+      this.initResolve = resolve
+    })
+  }
 
   static getInstance(): DatabaseManager {
     if (DatabaseManager.instance === null) {
@@ -73,12 +68,30 @@ export class DatabaseManager {
     this.database = new RdbDatabase(options)
     await this.database.ensureInitialized()
     this.initialized = true
+    
+    // 通知等待者初始化完成
+    if (this.initResolve !== null) {
+      this.initResolve()
+    }
   }
 
   /**
-   * 获取数据库实例
+   * 等待初始化完成
    */
-  getDatabase(): RdbDatabase {
+  async waitForInitialization(): Promise<void> {
+    if (this.initialized) {
+      return
+    }
+    if (this.initPromise !== null) {
+      await this.initPromise
+    }
+  }
+
+  /**
+   * 获取数据库实例（自动等待初始化）
+   */
+  async getDatabase(): Promise<RdbDatabase> {
+    await this.waitForInitialization()
     if (this.database === null) {
       throw new Error('Database not initialized. Call initialize() first.')
     }
@@ -86,38 +99,38 @@ export class DatabaseManager {
   }
 
   /**
-   * 获取用户实体入口
+   * 获取数据库实例（同步版本，需确保已初始化）
    */
-  getUserEntry() {
-    return this.getDatabase().entity<User, number>(USER_ENTITY_NAME)
+  getDatabaseSync(): RdbDatabase {
+    if (this.database === null) {
+      throw new Error('Database not initialized. Call initialize() first.')
+    }
+    return this.database
   }
 
   /**
-   * 获取商品实体入口
+   * 获取实体入口
    */
-  getProductEntry() {
-    return this.getDatabase().entity<Product, number>(PRODUCT_ENTITY_NAME)
+  async getEntry<T extends object>(entryName:  string): Promise<EntityEntry<T, number>> {
+    const db = await this.getDatabase()
+    return db.entity<T, number>(entryName)
   }
 
   /**
-   * 获取订单实体入口
+   * 获取数据库实例（同步版本，需确保已初始化）
    */
-  getOrderEntry() {
-    return this.getDatabase().entity<Order, number>(ORDER_ENTITY_NAME)
-  }
-
-  /**
-   * 获取订单明细实体入口
-   */
-  getOrderItemEntry() {
-    return this.getDatabase().entity<OrderItem, number>(ORDER_ITEM_ENTITY_NAME)
+  getEntrySync<T extends object>(entryName:  string): EntityEntry<T, number> {
+    if (this.database === null) {
+      throw new Error('Database not initialized. Call initialize() first.')
+    }
+    return this.database.entity<T, number>(entryName)
   }
 
   /**
    * 执行事务
    */
   async tx<T>(task: () => Promise<T>): Promise<T> {
-    return this.getDatabase().tx<T>(async (_scope): Promise<T> => {
+    return this.getDatabaseSync().tx<T>(async (_scope): Promise<T> => {
       return await task()
     })
   }
@@ -132,6 +145,10 @@ export class DatabaseManager {
     }
     this.context = null
     this.initialized = false
+    // 重置初始化 Promise
+    this.initPromise = new Promise<void>((resolve: () => void): void => {
+      this.initResolve = resolve
+    })
   }
 
   /**

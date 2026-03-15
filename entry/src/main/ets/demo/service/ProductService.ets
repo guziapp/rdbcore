@@ -10,7 +10,7 @@ import {
   RdbPageRequest,
   UpdateWrapper
 } from 'rdbcore'
-import { Product, ProductStatus } from '../entity'
+import { Product, ProductStatus, PRODUCT_ENTITY_NAME } from '../entity'
 import { getDatabaseManager } from './DatabaseManager'
 
 /**
@@ -33,7 +33,7 @@ export class ProductService {
    * 创建商品
    */
   async create(product: Product): Promise<number> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     return await entry.service().insert(product)
   }
 
@@ -41,7 +41,7 @@ export class ProductService {
    * 批量创建商品
    */
   async createBatch(products: Array<Product>): Promise<Array<number>> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     return await entry.service().insertBatch(products)
   }
 
@@ -49,7 +49,7 @@ export class ProductService {
    * 根据ID获取商品
    */
   async getById(id: number): Promise<Product | null> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     return await entry.service().getById(id)
   }
 
@@ -57,7 +57,7 @@ export class ProductService {
    * 根据商品编码获取商品
    */
   async getByProductCode(productCode: string): Promise<Product | null> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     const query = entry.query()
       .eq('deleted', 0)
       .eq('productCode', productCode)
@@ -76,7 +76,7 @@ export class ProductService {
    * 分页查询商品
    */
   async page(params: ProductQueryParams): Promise<RdbPage<Product>> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     const query = this.buildQuery(params)
       .orderByDesc('createdAt')
       .page(params.current, params.size)
@@ -93,7 +93,7 @@ export class ProductService {
    * 列表查询商品
    */
   async list(params: ProductQueryParams): Promise<Array<Product>> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     const query = this.buildQuery(params)
       .orderByDesc('createdAt')
     
@@ -104,7 +104,7 @@ export class ProductService {
    * 统计商品数量
    */
   async count(params: ProductQueryParams): Promise<number> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     const query = this.buildQuery(params)
     return await entry.service().count(query)
   }
@@ -113,8 +113,8 @@ export class ProductService {
    * 更新商品
    */
   async update(id: number, updates: Partial<Product>): Promise<boolean> {
-    const entry = this.getEntry()
-    const patch = this.buildUpdate(updates)
+    const entry = await this.getEntry()
+    const patch = await this.buildUpdate(updates)
     return await entry.service().patchById(id, patch)
   }
 
@@ -126,7 +126,7 @@ export class ProductService {
       throw new Error('Invalid product status: ' + status.toString())
     }
     
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     const patch = entry.update()
       .set('status', status)
       .set('updatedAt', Date.now())
@@ -148,7 +148,7 @@ export class ProductService {
       throw new Error('Insufficient stock')
     }
     
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     const patch = entry.update()
       .set('stock', newStock)
       .set('status', newStock === 0 ? ProductStatus.SOLD_OUT : product.status)
@@ -175,7 +175,7 @@ export class ProductService {
    * 删除商品（逻辑删除）
    */
   async delete(id: number): Promise<boolean> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     return await entry.service().removeById(id)
   }
 
@@ -183,22 +183,29 @@ export class ProductService {
    * 批量删除商品
    */
   async deleteByIds(ids: Array<number>): Promise<number> {
-    const entry = this.getEntry()
+    const entry = await this.getEntry()
     return await entry.service().removeByIds(ids)
   }
 
   /**
    * 获取实体入口
    */
-  private getEntry(): EntityEntry<Product, number> {
-    return getDatabaseManager().getProductEntry()
+  private async getEntry(): Promise<EntityEntry<Product, number>> {
+    return getDatabaseManager().getEntry(PRODUCT_ENTITY_NAME)
+  }
+
+  /**
+   * 获取实体入口(同步)
+   */
+  private getEntrySync(): EntityEntry<Product, number> {
+    return getDatabaseManager().getEntrySync(PRODUCT_ENTITY_NAME)
   }
 
   /**
    * 构建查询条件
    */
   private buildQuery(params: ProductQueryParams): QueryWrapper<Product> {
-    const entry = this.getEntry()
+    const entry = this.getEntrySync()
     const query = entry.query().eq('deleted', 0)
 
     // 关键字搜索
@@ -222,7 +229,7 @@ export class ProductService {
    * 构建更新条件
    */
   private buildUpdate(updates: Partial<Product>): UpdateWrapper<Product> {
-    const entry = this.getEntry()
+    const entry = this.getEntrySync()
     const patch = entry.update()
 
     if (updates.name !== undefined) {

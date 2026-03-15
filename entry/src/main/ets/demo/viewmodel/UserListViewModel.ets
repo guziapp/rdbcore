@@ -201,6 +201,36 @@ export class UserListViewModel {
   }
 
   /**
+   * 创建模拟数据
+   * @param count 创建数量
+   */
+  async createMockData(count: number): Promise<void> {
+    this.updateState({ loading: true, errorMessage: '' })
+    
+    try {
+      const timestamp = Date.now()
+      const users: Array<User> = []
+      
+      for (let i = 0; i < count; i++) {
+        const user = new User()
+        user.username = 'mock_user_' + timestamp.toString() + '_' + i.toString()
+        user.nickname = '模拟用户' + (i + 1).toString()
+        user.status = i % 3 === 0 ? UserStatus.INACTIVE : UserStatus.ACTIVE
+        users.push(user)
+      }
+      
+      await this.service.createBatch(users)
+      await this.refresh()
+    } catch (error) {
+      this.updateState({ 
+        loading: false, 
+        errorMessage: (error as Error).message 
+      })
+      throw new Error((error as Error).message)
+    }
+  }
+
+  /**
    * 清除错误
    */
   clearError(): void {

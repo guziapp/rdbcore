@@ -12,7 +12,7 @@ import {
   RdbPage,
   RdbPageRequest
 } from 'rdbcore'
-import { Order, OrderItem, OrderStatus } from '../entity'
+import { Order, OrderItem, OrderStatus, ORDER_ENTITY_NAME, ORDER_ITEM_ENTITY_NAME } from '../entity'
 import { getDatabaseManager } from './DatabaseManager'
 import { ProductService } from './ProductService'
 
@@ -113,11 +113,11 @@ export class OrderService {
       order.status = OrderStatus.PENDING_PAYMENT
       order.remark = input.remark
 
-      const orderEntry = this.getOrderEntry()
+      const orderEntry = await this.getOrderEntry()
       const orderId = await orderEntry.service().insert(order)
 
       // 创建订单明细
-      const itemEntry = this.getOrderItemEntry()
+      const itemEntry = this.getOrderItemEntrySync()
       for (const item of orderItems) {
         const orderItem = new OrderItem()
         orderItem.orderId = orderId
@@ -150,7 +150,7 @@ export class OrderService {
    * 根据ID获取订单
    */
   async getById(id: number): Promise<Order | null> {
-    const entry = this.getOrderEntry()
+    const entry = this.getOrderEntrySync()
     return await entry.service().getById(id)
   }
 
@@ -158,7 +158,7 @@ export class OrderService {
    * 根据订单号获取订单
    */
   async getByOrderNo(orderNo: string): Promise<Order | null> {
-    const entry = this.getOrderEntry()
+    const entry = this.getOrderEntrySync()
     const query = entry.query()
       .eq('deleted', 0)
       .eq('orderNo', orderNo)
@@ -169,7 +169,7 @@ export class OrderService {
    * 分页查询订单
    */
   async page(params: OrderQueryParams): Promise<RdbPage<Order>> {
-    const entry = this.getOrderEntry()
+    const entry = this.getOrderEntrySync()
     const query = this.buildQuery(params)
       .orderByDesc('createdAt')
       .page(params.current, params.size)
@@ -186,7 +186,7 @@ export class OrderService {
    * 列表查询订单
    */
   async list(params: OrderQueryParams): Promise<Array<Order>> {
-    const entry = this.getOrderEntry()
+    const entry = this.getOrderEntrySync()
     const query = this.buildQuery(params)
       .orderByDesc('createdAt')
     
@@ -197,7 +197,7 @@ export class OrderService {
    * 获取订单明细
    */
   async getOrderItems(orderId: number): Promise<Array<OrderItem>> {
-    const entry = this.getOrderItemEntry()
+    const entry = this.getOrderItemEntrySync()
     const query = entry.query()
       .eq('orderId', orderId)
       .orderByAsc('id')
@@ -223,7 +223,7 @@ export class OrderService {
       throw new Error('Invalid status transition: ' + OrderStatus.label(order.status) + ' -> ' + OrderStatus.label(status))
     }
 
-    const entry = this.getOrderEntry()
+    const entry = this.getOrderEntrySync()
     const patch = entry.update()
       .set('status', status)
       .set('updatedAt', Date.now())
@@ -285,7 +285,7 @@ export class OrderService {
    * 删除订单（逻辑删除）
    */
   async delete(id: number): Promise<boolean> {
-    const entry = this.getOrderEntry()
+    const entry = this.getOrderEntrySync()
     return await entry.service().removeById(id)
   }
 
@@ -293,7 +293,7 @@ export class OrderService {
    * 统计用户订单数量
    */
   async countByUserId(userId: number): Promise<number> {
-    const entry = this.getOrderEntry()
+    const entry = this.getOrderEntrySync()
     const query = entry.query()
       .eq('deleted', 0)
       .eq('userId', userId)
@@ -303,22 +303,36 @@ export class OrderService {
   /**
    * 获取订单实体入口
    */
-  private getOrderEntry(): EntityEntry<Order, number> {
-    return getDatabaseManager().getOrderEntry()
+  private getOrderEntry(): Promise<EntityEntry<Order, number>> {
+    return getDatabaseManager().getEntry(ORDER_ENTITY_NAME)
   }
 
   /**
    * 获取订单明细实体入口
    */
-  private getOrderItemEntry(): EntityEntry<OrderItem, number> {
-    return getDatabaseManager().getOrderItemEntry()
+  private getOrderItemEntry(): Promise<EntityEntry<OrderItem, number>>{
+    return getDatabaseManager().getEntry(ORDER_ITEM_ENTITY_NAME)
+  }
+
+  /**
+   * 获取订单实体入口
+   */
+  private getOrderEntrySync(): EntityEntry<Order, number> {
+    return getDatabaseManager().getEntrySync(ORDER_ENTITY_NAME)
+  }
+
+  /**
+   * 获取订单明细实体入口
+   */
+  private getOrderItemEntrySync(): EntityEntry<OrderItem, number> {
+    return getDatabaseManager().getEntrySync(ORDER_ITEM_ENTITY_NAME)
   }
 
   /**
    * 构建查询条件
    */
   private buildQuery(params: OrderQueryParams): QueryWrapper<Order> {
-    const entry = this.getOrderEntry()
+    const entry = this.getOrderEntrySync()
     const query = entry.query().eq('deleted', 0)
 
     // 订单号搜索

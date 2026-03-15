@@ -97,9 +97,18 @@ export struct UserListPage {
         // 创建按钮
         Button('创建用户')
           .width('100%')
-          .margin({ bottom: 12 })
+          .margin({ bottom: 8 })
           .onClick((): void => {
             this.showCreateDialog = true
+          })
+
+        // 模拟数据按钮
+        Button('添加模拟数据(100条)')
+          .width('100%')
+          .margin({ bottom: 12 })
+          .backgroundColor('#4CAF50')
+          .onClick((): void => {
+            this.viewModel.createMockData(100)
           })
 
         // 错误提示
