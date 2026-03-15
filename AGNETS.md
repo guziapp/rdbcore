@@ -14,7 +14,10 @@
 - 工程类型：`entry + har(rdbcore)` 双模块工程
 - 核心模块：`rdbcore/`
 - 仓库定位：面向 **AI Agent 驱动开发**、同时兼顾人类架构师可读性的 HarmonyOS RDB 核心库
-- 项目现状：已形成主干能力，但**默认交付链、schema migration contract、最小 demo** 仍未完全收口
+- 项目现状：
+  - **rdbcore 模块**：主链能力已形成，场景测试全部通过（ProfileFlowScenario、BatchTransactionScenario、DeleteRestoreScenario、DetailPatchScenario、ListSearchScenario、StoreLifecycleScenario）
+  - **entry 模块**：demo 应用已收敛，真机测试全部通过（92 个测试用例，Pass: 92, Failure: 0, Error: 0）
+  - **已知限制**：rdbcore 不提供自动建表能力，需业务层自行管理 schema
 - 当前发布结论口径：`Conditional Go`，**不得对外宣称已完全达到 Go**
 
 ## 3. 仓库结构
@@ -25,7 +28,6 @@
 - `docs/`：评审、整改、开源检查、路线图文档
 - `entry/`：应用壳模块，当前仍处于 demo/模板收敛阶段
 - `rdbcore/`：核心 HAR 模块，主要开发工作应优先落在这里
-- `example/`：最小 CRUD 示例
 
 ### 3.2 rdbcore 主结构
 
@@ -53,7 +55,6 @@
 
 如果是业务接入任务，再补读：
 
-- `example/01-minimal-crud.md`
 - `entry/` 相关页面与能力入口
 
 ## 5. 核心主链
@@ -219,7 +220,6 @@ Agent 修改代码时，必须遵守以下约束：
 优先检查的文档：
 
 - `README.md`
-- `example/01-minimal-crud.md`
 - `docs/PROJECT_CHECKLIST.md`
 
 ## 15. 对 AI Agent 最重要的一句话
